@@ -1,53 +1,57 @@
-# This workflow will build a Java project with Gradle
-# For more information see: https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-gradle
-
-name: Java CI with Gradle
+name: Java Maven CI on my self-hosted actions runner
 
 on:
-    push:
-        branches: [ main ]
-    pull_request:
-        branches: [ main ]
+  push:
+
+permissions:
+  contents: write
 
 jobs:
-    build:
-        name: Gradle Automation Build
-        runs-on: ubuntu-latest
-        strategy:
-            matrix:
-                java: [17]
-        steps:
-            -
-                uses: actions/checkout@v2
-            -
-                uses: actions/setup-java@v1
-                with:
-                    java-version: ${{ matrix.java }}
+  build:
+    timeout-minutes: 10
+    name: Maven Automation Build
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        java: [8]
 
-            # add cache to improve workflow execution time
-            -
-                name: Cache .gradle/caches
-                uses: actions/cache@v1
-                with:
-                    path: ~/.gradle/caches
-                    key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*') }}
-                    restore-keys: ${{ runner.os }}-gradle-
-            -
-                name: Cache .gradle/wrapper
-                uses: actions/cache@v1
-                with:
-                    path: ~/.gradle/wrapper
-                    key: ${{ runner.os }}-gradle-wrapper-${{ hashFiles('**/*.gradle') }}
-                    restore-keys: ${{ runner.os }}-gradle-wrapper-
-            -
-                name: Grant execute permission for gradlew
-                run: chmod +x gradlew
-            -
-                name: Build with Gradle
-                run: ./gradlew clean build -s
-            -
-                name: Upload Jar
-                uses: actions/upload-artifact@v2
-                with:
-                 name: Bruhfuscator
-                 path: build/libs/*.jar
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up JDK ${{ matrix.java }}
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ matrix.java }}
+          distribution: 'zulu'
+          cache: 'maven'
+
+      - name: Cache Maven packages for a specific project
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ github.repository }}-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-${{ github.repository }}-
+
+      - name: Build with Maven
+        run: mvn -D style.color=always -B package
+
+      - name: Upload Jar Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: b_${{ github.sha }}
+          path: |
+            **/*.jar
+
+      - name: Create GitHub Release with assets
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TAG="build-${{ github.sha }}"
+          NAME="Automated Release-${{ github.sha }}"
+          BODY="GitHub actions automated release"
+          
+          FILES=$(find . -type f -name "*.jar")
+          gh release create "$TAG" \
+            --repo "$GITHUB_REPOSITORY" \
+            --title "$NAME" \
+            --notes "$BODY" \
