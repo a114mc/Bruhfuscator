@@ -9,6 +9,7 @@ import me.iris.ambien.obfuscator.transformers.implementations.packaging.Duplicat
 import me.iris.ambien.obfuscator.transformers.implementations.packaging.FolderClasses;
 import me.iris.ambien.obfuscator.transformers.implementations.packaging.Metadata;
 import me.iris.ambien.obfuscator.utilities.IOUtil;
+import me.iris.ambien.obfuscator.utilities.StringUtil;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.analysis.Analyzer;
@@ -219,7 +220,7 @@ public class JarWrapper {
                 if (t.getTransformer("duplicate-resources").isEnabled() && DuplicateResources.dupResources.isEnabled()) {
                     int dupAmount = DuplicateResources.dupAmount.getValue();
                     for (int x = 1; x <= dupAmount; x++) {
-                        String modifiedName = name + "\u0000".repeat(x);
+                        String modifiedName = name + StringUtil.repeat("\u0000",x);
                         byte[] duplicatedData = IOUtil.duplicateData(bytes);
                         IOUtil.writeEntry(stream, modifiedName, duplicatedData); // "resource.yml   "
                     }
@@ -260,7 +261,7 @@ public class JarWrapper {
                                                     name.replace(".class/", "")
                                                     .replace(".class", ""))
                                                 + ".class"
-                                                + "\u0000".repeat(x),
+                                                + StringUtil.repeat("\u0000",(x)),
                                             IOUtil.duplicateData(classWrapper.toByteArray())
                                     );
                                 }
@@ -272,7 +273,7 @@ public class JarWrapper {
                         } else {
                             if (duplicateResourcesEnabled && dupClassesEnabled) {
                                 for (int x = 1; x <= DuplicateResources.dupAmount.getValue(); x++) {
-                                    IOUtil.writeEntry(stream, name + "\u0000".repeat(x), IOUtil.duplicateData(classWrapper.toByteArray()));
+                                    IOUtil.writeEntry(stream, name + StringUtil.repeat("\u0000",(x)), IOUtil.duplicateData(classWrapper.toByteArray()));
                                 }
                             }
                             if (folderClassesEnabled && FolderClasses.folderClasses.isEnabled()) {

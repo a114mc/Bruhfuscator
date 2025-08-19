@@ -61,7 +61,8 @@ public class AmbienStringEncryption {
                     .map(insn -> (LdcInsnNode)insn)
                     .forEach(ldc -> {
                         // check if the ldc is a string
-                        if (!(ldc.cst instanceof String origString)) return;
+                        if (!(ldc.cst instanceof String)) return;
+                        String origString = (String) ldc.cst;
 
                         // Check if the string is blacklisted
                         if (StringEncryption.stringBlacklist.getOptions().contains(origString)) return;

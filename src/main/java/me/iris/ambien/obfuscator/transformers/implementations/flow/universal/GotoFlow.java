@@ -37,7 +37,8 @@ public class GotoFlow {
             InstructionModifier modifier = new InstructionModifier();
 
             for (AbstractInsnNode instruction : method.instructions) {
-                if (instruction instanceof JumpInsnNode jumpInsn) {
+                if (instruction instanceof JumpInsnNode) {
+                    JumpInsnNode jumpInsn = (JumpInsnNode) instruction;
                     if (jumpInsn.getOpcode() == Opcodes.GOTO) {
                         InstructionBuilder builder = new InstructionBuilder();
                         builder.fieldInsn(Opcodes.GETSTATIC, node.name, fieldName, "I");
@@ -46,20 +47,24 @@ public class GotoFlow {
                         boolean pop = false;
                         int randomInt = ThreadLocalRandom.current().nextInt(0, 5);
                         switch (randomInt) {
-                            case 0 -> {
+                            case 0:
                                 builder.number(ThreadLocalRandom.current().nextInt());
                                 pop = true;
-                            }
-                            case 1 -> builder.ldc(ThreadLocalRandom.current().nextLong());
-                            case 2 -> {
+                                break;
+                            case 1:
+                                builder.ldc(ThreadLocalRandom.current().nextLong());
+                                break;
+                            case 2:
                                 builder.insn(Opcodes.ACONST_NULL);
                                 pop = true;
-                            }
-                            case 3 -> {
+                                break;
+                            case 3:
                                 builder.ldc(ThreadLocalRandom.current().nextFloat());
                                 pop = true;
-                            }
-                            case 4 -> builder.ldc(ThreadLocalRandom.current().nextDouble());
+                                break;
+                            case 4:
+                                builder.ldc(ThreadLocalRandom.current().nextDouble());
+                                break;
                         }
 
                         if (pop) {
@@ -74,9 +79,14 @@ public class GotoFlow {
                         modifier.replace(jumpInsn, builder.getList());
                         setupField = true;
                     }
-                } else if (instruction instanceof VarInsnNode varInsn) {
+                } else if (instruction instanceof VarInsnNode) {
+                    VarInsnNode varInsn = (VarInsnNode) instruction;
                     switch (varInsn.getOpcode()) {
-                        case Opcodes.ILOAD, Opcodes.LLOAD, Opcodes.FLOAD, Opcodes.DLOAD, Opcodes.ALOAD -> {
+                        case Opcodes.ILOAD:
+                        case Opcodes.LLOAD:
+                        case Opcodes.FLOAD:
+                        case Opcodes.DLOAD:
+                        case Opcodes.ALOAD: {
                             LabelNode label = new LabelNode();
                             method.maxLocals = method.maxLocals + (varInsn.getOpcode() == Opcodes.LLOAD || varInsn.getOpcode() == Opcodes.DLOAD ? 2 : 1);
 
@@ -98,8 +108,13 @@ public class GotoFlow {
 
                             modifier.append(varInsn, builder.getList());
                             setupField = true;
+                            break;
                         }
-                        case Opcodes.ISTORE, Opcodes.LSTORE, Opcodes.FSTORE, Opcodes.DSTORE, Opcodes.ASTORE -> {
+                        case Opcodes.ISTORE:
+                        case Opcodes.LSTORE:
+                        case Opcodes.FSTORE:
+                        case Opcodes.DSTORE:
+                        case Opcodes.ASTORE: {
                             InstructionBuilder builder = new InstructionBuilder();
                             builder.varInsn(varInsn.getOpcode() - 33, varInsn.var);
 
@@ -110,6 +125,7 @@ public class GotoFlow {
                             }
 
                             modifier.append(varInsn, builder.getList());
+                            break;
                         }
                     }
                 }

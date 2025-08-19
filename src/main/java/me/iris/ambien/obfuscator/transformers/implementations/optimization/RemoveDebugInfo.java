@@ -51,19 +51,14 @@ public class RemoveDebugInfo extends Transformer {
     private String randomSignature() {
         int i = ThreadLocalRandom.current().nextInt(0, 4);
         switch (i) {
-            case 1 -> {
+            case 1:
                 return "[I";
-            }
-            case 2 -> {
+            case 2:
                 return "[Z";
-            }
-            case 3 -> {
+            case 3:
                 return "[J";
-            }
-            default -> {
+            default:
                 return "[B";
-            }
-
         }
     }
 }

@@ -128,7 +128,9 @@ public class CaesiumReference extends Transformer {
                                 newSig = Type.getMethodDescriptor(origReturnType, args);
 
                                 switch (opcode) {
-                                    case INVOKEVIRTUAL, INVOKESTATIC, INVOKEINTERFACE -> {
+                                    case INVOKEVIRTUAL:
+                                    case INVOKESTATIC:
+                                    case INVOKEINTERFACE:
                                         Object[] params = new Object[4 + extraParamsCount];
                                         params[0] = extraParamsCount != 0 ? (opcode ^ opcodeRandomKey) : opcode;
                                         params[1] = base64Encode(insn.owner.replaceAll("/", ".").getBytes(), base64RandomTable, encryptionKey);
@@ -144,7 +146,7 @@ public class CaesiumReference extends Transformer {
                                             instructions.insert(invokeInsn, new TypeInsnNode(CHECKCAST, origReturnType.getInternalName()));
                                         instructions.remove(insn);
                                         appliedInvoke.set(true);
-                                    }
+                                        break;
                                 }
                             });
                 });
@@ -226,41 +228,31 @@ public class CaesiumReference extends Transformer {
      */
     private Object getRandomObject() {
         switch (random.nextInt(10)) {
-            case 0 -> {
+            case 0:
                 return random.nextLong();
-            }
-            case 1 -> {
+            case 1:
                 return random.nextInt();
-            }
-            case 2 -> {
+            case 2:
                 return StringUtil.genName(10);
-            }
-            case 3 -> {
+            case 3:
                 return random.nextFloat();
-            }
-            case 4 -> {
+            case 4:
                 return random.nextGaussian();
-            }
-            case 5 -> {
+            case 5:
                 return Float.floatToIntBits(random.nextFloat());
-            }
-            case 6 -> {
+            case 6:
                 AtomicReference<String> s = new AtomicReference<>("");
 
                 IntStream.range(0, 5 + random.nextInt(20))
                         .forEach(i -> s.updateAndGet(v -> v + (char) random.nextInt(60)));
 
                 return s.get();
-            }
-            case 7 -> {
+            case 7:
                 return (byte) random.nextInt(Byte.MAX_VALUE);
-            }
-            case 8 -> {
+            case 8:
                 return random.nextDouble() * 20F;
-            }
-            case 9 -> {
+            case 9:
                 return base64Encode(StringUtil.genName(10).getBytes(), base64RandomTable, (byte) 0);
-            }
         }
 
         return 0;

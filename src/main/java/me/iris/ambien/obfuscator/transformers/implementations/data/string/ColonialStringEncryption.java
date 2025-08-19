@@ -42,13 +42,27 @@ public class ColonialStringEncryption {
             final char c = charArray[n];
             char c2;
             switch (n % 7) {
-                case 0 -> c2 = b[0];
-                case 1 -> c2 = b[1];
-                case 2 -> c2 = b[2];
-                case 3 -> c2 = b[3];
-                case 4 -> c2 = b[4];
-                case 5 -> c2 = b[5];
-                default -> c2 = b[6];
+                case 0:
+                    c2 = b[0];
+                    break;
+                case 1:
+                    c2 = b[1];
+                    break;
+                case 2:
+                    c2 = b[2];
+                    break;
+                case 3:
+                    c2 = b[3];
+                    break;
+                case 4:
+                    c2 = b[4];
+                    break;
+                case 5:
+                    c2 = b[5];
+                    break;
+                default:
+                    c2 = b[6];
+                    break;
             }
             charArray[n] = (char)(c ^ c2);
         }
@@ -71,7 +85,8 @@ public class ColonialStringEncryption {
                 final String name = StringUtil.genName(40);
                 for (final MethodNode mn : node.methods) {
                     BytecodeHelper.forEach(mn.instructions, LdcInsnNode.class, ldc -> {
-                        if (ldc.cst instanceof String s) {
+                        if (ldc.cst instanceof String) {
+                            String s = (String) ldc.cst;
                             final int k1 = new Random().nextInt();
                             final int k2 = new Random().nextInt();
                             final int k3 = new Random().nextInt();

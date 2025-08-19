@@ -1,6 +1,6 @@
 package me.iris.ambien.obfuscator.builders;
 
-import me.iris.ambien.obfuscator.utilities.ASMUtils;
+import me.iris.ambien.obfuscator.utilities.GOTOASMUtils;
 import org.objectweb.asm.Handle;
 import org.objectweb.asm.tree.*;
 
@@ -61,7 +61,7 @@ public class InstructionBuilder {
     }
 
     public void number(int i) {
-        list.add(ASMUtils.createNumberNode(i));
+        list.add(GOTOASMUtils.createNumberNode(i));
     }
 
     public InsnList getList() {

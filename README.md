@@ -33,8 +33,8 @@
 * Run obfuscator `java -jar bruhfuscator-1.5.0.jar -cfg settings.json` (maybe it's better to add `--add-opens java.base/java.util.zip=ALL-UNNAMED` arg)
 
 **Before using:**
-* Bruhfuscator MUST be ran with Java 17+
-* Ambien should not be used alongside or with other obfuscators (you sure, iiiiris???)
+* Java 1.8 was recommended
+* It should not be used alongside or with other obfuscators (you sure, iiiiris???)
 
 Run the jar using the `--create-config` argument to create a base config
 

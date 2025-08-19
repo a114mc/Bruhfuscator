@@ -9,7 +9,7 @@ import me.iris.ambien.obfuscator.transformers.data.Ordinal;
 import me.iris.ambien.obfuscator.transformers.data.Stability;
 import me.iris.ambien.obfuscator.transformers.data.Transformer;
 import me.iris.ambien.obfuscator.transformers.data.annotation.TransformerInfo;
-import me.iris.ambien.obfuscator.utilities.ASMUtils;
+import me.iris.ambien.obfuscator.utilities.GOTOASMUtils;
 import me.iris.ambien.obfuscator.utilities.IOUtil;
 import me.iris.ambien.obfuscator.utilities.MathUtil;
 import me.iris.ambien.obfuscator.wrappers.ClassWrapper;
@@ -20,6 +20,7 @@ import org.objectweb.asm.tree.*;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 import java.util.jar.JarOutputStream;
@@ -40,7 +41,7 @@ public class RedHerring extends Transformer {
     /**
      * Adds junk data instead of a class file, this will result in a smaller jar when using this transformer
      */
-    List<String> messagesList = new ArrayList<>(List.of(
+    List<String> messagesList = new ArrayList<>(Arrays.asList(
             "своего безглазого парнокопытного деда декомпиль, бездарность | you_need_to_train_more"
     ));
     public static BooleanSetting corrupt = new BooleanSetting("corrupt", false);
@@ -84,7 +85,7 @@ public class RedHerring extends Transformer {
                     classNode.fields.add(fieldNode);
                 }
 
-                MethodNode clinit = ASMUtils.getClinitMethodNodeOrCreateNew(classNode);
+                MethodNode clinit = GOTOASMUtils.getClinitMethodNodeOrCreateNew(classNode);
                 InsnList clinitInstructions = clinit.instructions;
 
                 for (String[] messageData : messages) {

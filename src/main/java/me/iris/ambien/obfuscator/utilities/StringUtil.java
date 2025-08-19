@@ -8,6 +8,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 @UtilityClass
@@ -15,7 +16,7 @@ public class StringUtil {
     private static final Set<String> usedNames = new HashSet<>();
     private static final char[] CHARS = "1234567890QWERTYUIOPASDFGHJKLZXCVBNMqwertyuiopasdfghjklzxcvbnm$/".toCharArray();
     private static final char[] RANDOM_CHARS = "QWERTYUIOPASDFGHJKLZXCVBNMqwertyuiopasdfghjklzxcvbnm".toCharArray();
-    private final List<String> ILLEGAL_JAVA_NAMES = List.of(
+    private final List<String> ILLEGAL_JAVA_NAMES = Arrays.asList(
             "abstract", "assert", "boolean", "break",
             "byte", "case", "catch", "char", "class",
             "const", "continue", "default", "do",
@@ -175,12 +176,21 @@ public class StringUtil {
         final List<Character> charList = IntStream
                 .range(0, CHARS.length)
                 .mapToObj(c -> CHARS[c])
-                .toList();
+                .collect(Collectors.toList());
         for (char c : str.toCharArray()) {
             if (charList.contains(c))
                 return true;
         }
 
         return false;
+    }
+
+    public static String repeat(CharSequence content, int amount){
+        // 使用 StringBuilder 循环
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < amount; i++) {
+            sb.append(content);
+        }
+        return sb.toString();
     }
 }

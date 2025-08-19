@@ -6,7 +6,7 @@ import org.objectweb.asm.tree.*;
 
 import static org.objectweb.asm.Opcodes.*;
 
-public class ASMUtils {
+public class GOTOASMUtils {
 
     public static boolean isString(AbstractInsnNode node) {
         return node instanceof LdcInsnNode && ((LdcInsnNode) node).cst instanceof String;

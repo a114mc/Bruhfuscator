@@ -18,10 +18,7 @@ import org.objectweb.asm.commons.SimpleRemapper;
 import org.objectweb.asm.tree.*;
 
 import java.lang.reflect.Modifier;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static me.iris.ambien.obfuscator.utilities.StringUtil.getNewName;
@@ -36,7 +33,7 @@ import static me.iris.ambien.obfuscator.utilities.StringUtil.getNewName;
 public class Remapper extends Transformer {
     public static final StringSetting forcePackage = new StringSetting("force-package", "");
     public static final BooleanSetting classes = new BooleanSetting("classes", true);
-    public final ListSetting excl = new ListSetting("name-exclude", new ArrayList<>(List.of("onEnable", "onDisable", "onInitialize", "onInitializeClient")));
+    public final ListSetting excl = new ListSetting("name-exclude", new ArrayList<>(Arrays.asList("onEnable", "onDisable", "onInitialize", "onInitializeClient")));
     public final BooleanSetting methods = new BooleanSetting("methods", true);
     public final BooleanSetting fields = new BooleanSetting("fields", true);
     public final BooleanSetting localVariables = new BooleanSetting("local-variables", true);
@@ -55,8 +52,8 @@ public class Remapper extends Transformer {
     public static final Map<String, String> map = new HashMap<>();
     public static final Map<String, ClassWrapper> wrappers = new HashMap<>();
 
-    public static final List<String> excludedAnnotations = List.of("Lorg/spongepowered/asm/mixin/Shadow;", "Lorg/spongepowered/asm/mixin/gen/Accessor;");
-    public static final List<String> excludedFields = List.of("this", "$assertionsDisabled");
+    public static final List<String> excludedAnnotations =  Arrays.asList("Lorg/spongepowered/asm/mixin/Shadow;", "Lorg/spongepowered/asm/mixin/gen/Accessor;");
+    public static final List<String> excludedFields =  Arrays.asList("this", "$assertionsDisabled");
 
     @Override
     public void transform(JarWrapper wrapper) {
@@ -145,7 +142,8 @@ public class Remapper extends Transformer {
                             classWrapper.getMethods().forEach(methodWrapper -> {
                                 if (methodWrapper.getNode().instructions != null) {
                                     methodWrapper.getNode().instructions.iterator().forEachRemaining(abstractInsnNode -> {
-                                        if (abstractInsnNode instanceof FieldInsnNode fieldInsnNode) {
+                                        if (abstractInsnNode instanceof FieldInsnNode) {
+                                            FieldInsnNode fieldInsnNode = (FieldInsnNode) abstractInsnNode;
                                             if (fieldInsnNode.name.equals(oldName)) {
                                                 fieldInsnNode.name = newName;
                                             }

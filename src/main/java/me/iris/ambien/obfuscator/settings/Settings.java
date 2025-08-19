@@ -145,7 +145,8 @@ public class Settings {
                         ((BooleanSetting)setting).setEnabled(element.getAsBoolean());
                     else if (setting instanceof StringSetting)
                         ((StringSetting)setting).setValue(element.getAsString());
-                    else if (setting instanceof NumberSetting numberSetting) {
+                    else if (setting instanceof NumberSetting) {
+                        NumberSetting numberSetting = (NumberSetting) setting;
                         if (numberSetting.getValue() instanceof Integer)
                             numberSetting.setValue(element.getAsInt());
                         else if (numberSetting.getValue() instanceof Long)
@@ -154,7 +155,8 @@ public class Settings {
                             numberSetting.setValue(element.getAsFloat());
                         else if (numberSetting.getValue() instanceof Double)
                             numberSetting.setValue(element.getAsDouble());
-                    } else if (setting instanceof ListSetting listSetting) {
+                    } else if (setting instanceof ListSetting) {
+                        ListSetting listSetting = (ListSetting) setting;
 
                         // Add options
                         final JsonArray array = element.getAsJsonArray();

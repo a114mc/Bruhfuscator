@@ -1,6 +1,7 @@
 package me.iris.ambien.obfuscator.utilities;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class UnicodeDictionary {
@@ -13,7 +14,7 @@ public class UnicodeDictionary {
         }
 
         unicode.addAll(
-                List.of(
+                Arrays.asList(
                         "\u034C",
                         "\u035C",
                         "\u034E",

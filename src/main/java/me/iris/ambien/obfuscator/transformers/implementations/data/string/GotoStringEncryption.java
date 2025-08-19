@@ -3,7 +3,7 @@ package me.iris.ambien.obfuscator.transformers.implementations.data.string;
 import me.iris.ambien.obfuscator.builders.InstructionBuilder;
 import me.iris.ambien.obfuscator.builders.InstructionModifier;
 import me.iris.ambien.obfuscator.transformers.implementations.data.StringEncryption;
-import me.iris.ambien.obfuscator.utilities.ASMUtils;
+import me.iris.ambien.obfuscator.utilities.GOTOASMUtils;
 import me.iris.ambien.obfuscator.utilities.kek.UnicodeDictionary;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.Opcodes;
@@ -12,6 +12,7 @@ import org.objectweb.asm.tree.*;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class GotoStringEncryption {
@@ -28,7 +29,7 @@ public class GotoStringEncryption {
         data.clear();
         constFieldData.clear();
 
-        if (ASMUtils.isInterfaceClass(node)) {
+        if (GOTOASMUtils.isInterfaceClass(node)) {
             return;
         }
 
@@ -51,7 +52,7 @@ public class GotoStringEncryption {
             InstructionModifier modifier = new InstructionModifier();
 
             for (AbstractInsnNode instruction : method.instructions) {
-                if (ASMUtils.isString(instruction)) {
+                if (GOTOASMUtils.isString(instruction)) {
                     LdcInsnNode ldcInsnNode = (LdcInsnNode) instruction;
                     if (StringEncryption.stringBlacklist.getOptions().contains((String) ldcInsnNode.cst)) return;
                     modifier.replace(instruction,
@@ -90,7 +91,7 @@ public class GotoStringEncryption {
         FieldNode field = new FieldNode(Opcodes.ACC_PRIVATE | Opcodes.ACC_STATIC, fieldName, "[Ljava/lang/String;", null, null);
         node.fields.add(field);
 
-        MethodNode staticMethod = ASMUtils.getClinitMethodNodeOrCreateNew(node);
+        MethodNode staticMethod = GOTOASMUtils.getClinitMethodNodeOrCreateNew(node);
         InstructionModifier modifier = new InstructionModifier();
 
         InstructionBuilder staticListBuilder = new InstructionBuilder();
@@ -177,14 +178,14 @@ public class GotoStringEncryption {
 
         for (int i = 0; i <= 255; i++) {
             decryptMethod.visitLabel(labels[3 + i * 2]);
-            decryptMethod.instructions.add(ASMUtils.createNumberNode(((i + 1) ^ (~offset)) ^ key[i]));
+            decryptMethod.instructions.add(GOTOASMUtils.createNumberNode(((i + 1) ^ (~offset)) ^ key[i]));
             decryptMethod.visitVarInsn(Opcodes.ISTORE, 4);
             decryptMethod.visitLabel(labels[4 + i * 2]);
             decryptMethod.visitJumpInsn(Opcodes.GOTO, labels[516]);
         }
 
         decryptMethod.visitLabel(labels[515]);
-        decryptMethod.instructions.add(ASMUtils.createNumberNode(257 ^ (~offset) ^ key[256]));
+        decryptMethod.instructions.add(GOTOASMUtils.createNumberNode(257 ^ (~offset) ^ key[256]));
         decryptMethod.visitVarInsn(Opcodes.ISTORE, 4);
         decryptMethod.visitLabel(labels[516]);
         decryptMethod.visitInsn(Opcodes.ICONST_0);
@@ -227,7 +228,7 @@ public class GotoStringEncryption {
         decryptMethod.visitInsn(Opcodes.RETURN);
         decryptMethod.visitEnd();
 
-        ASMUtils.computeMaxLocals(decryptMethod);
+        GOTOASMUtils.computeMaxLocals(decryptMethod);
 
         node.methods.add(decryptMethod);
     }
@@ -243,6 +244,81 @@ public class GotoStringEncryption {
         return new String(decode);
     }
 
-    private record EncryptData(String encryptedString, int pos) {}
-    private record FieldData(int pos, FieldNode fieldNode) {}
+    private static final class EncryptData {
+        private final String encryptedString;
+        private final int pos;
+
+        private EncryptData(String encryptedString, int pos) {
+            this.encryptedString = encryptedString;
+            this.pos = pos;
+        }
+
+        public String encryptedString() {
+            return encryptedString;
+        }
+
+        public int pos() {
+            return pos;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (obj == this) return true;
+            if (obj == null || obj.getClass() != this.getClass()) return false;
+            EncryptData that = (EncryptData) obj;
+            return Objects.equals(this.encryptedString, that.encryptedString) &&
+                    this.pos == that.pos;
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(encryptedString, pos);
+        }
+
+        @Override
+        public String toString() {
+            return "EncryptData[" +
+                    "encryptedString=" + encryptedString + ", " +
+                    "pos=" + pos + ']';
+        }
+    }
+
+    private static final class FieldData {
+        private final int pos;
+        private final FieldNode fieldNode;
+
+        private FieldData(int pos, FieldNode fieldNode) {
+            this.pos = pos;
+            this.fieldNode = fieldNode;
+        }
+
+        public int pos() {
+            return pos;
+        }
+
+        public FieldNode fieldNode() {
+            return fieldNode;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (obj == this) return true;
+            if (obj == null || obj.getClass() != this.getClass()) return false;
+            FieldData that = (FieldData) obj;
+            return this.pos == that.pos &&
+                    Objects.equals(this.fieldNode, that.fieldNode);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(pos, fieldNode);
+        }
+
+        @Override
+        public String toString() {
+            return "FieldData[" +
+                    "pos=" + pos + ", " +
+                    "fieldNode=" + fieldNode + ']';
+        }
+    }
 }

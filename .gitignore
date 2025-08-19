@@ -1,6 +1,7 @@
 # Compiled class file
 *.class
 
+
 # Log file
 *.log
 
@@ -34,6 +35,8 @@ file-system.probe
 
 # Build files
 build/*
+/target/
+/dependency-reduced-pom.xml
 
 # Ambien settings file
 settings.json

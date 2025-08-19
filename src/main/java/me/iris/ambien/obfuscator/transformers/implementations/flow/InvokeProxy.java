@@ -6,7 +6,7 @@ import me.iris.ambien.obfuscator.transformers.data.Ordinal;
 import me.iris.ambien.obfuscator.transformers.data.Stability;
 import me.iris.ambien.obfuscator.transformers.data.Transformer;
 import me.iris.ambien.obfuscator.transformers.data.annotation.TransformerInfo;
-import me.iris.ambien.obfuscator.utilities.ASMUtils;
+import me.iris.ambien.obfuscator.utilities.GOTOASMUtils;
 import me.iris.ambien.obfuscator.utilities.kek.UnicodeDictionary;
 import me.iris.ambien.obfuscator.wrappers.JarWrapper;
 import org.objectweb.asm.Opcodes;
@@ -46,7 +46,8 @@ public class InvokeProxy extends Transformer {
             InstructionModifier modifier = new InstructionModifier();
 
             for (AbstractInsnNode instruction : method.instructions) {
-                if (instruction instanceof MethodInsnNode methodInsn) {
+                if (instruction instanceof MethodInsnNode) {
+                    MethodInsnNode methodInsn = (MethodInsnNode) instruction;
                     switch (methodInsn.getOpcode()) {
                         case Opcodes.INVOKESTATIC: {
                             String methodName = dictionary.get();
@@ -128,7 +129,8 @@ public class InvokeProxy extends Transformer {
                             break;
                         }
                     }
-                } else if (instruction instanceof FieldInsnNode fieldInsn) {
+                } else if (instruction instanceof FieldInsnNode) {
+                    FieldInsnNode fieldInsn = (FieldInsnNode) instruction;
                     switch (fieldInsn.getOpcode()) {
                         case Opcodes.GETSTATIC: {
                             Type type = Type.getType(fieldInsn.desc);
@@ -291,7 +293,7 @@ public class InvokeProxy extends Transformer {
         }
 
         for (MethodNode syntheticMethod : syntheticMethods) {
-            ASMUtils.computeMaxLocals(syntheticMethod);
+            GOTOASMUtils.computeMaxLocals(syntheticMethod);
         }
 
         node.methods.addAll(syntheticMethods);

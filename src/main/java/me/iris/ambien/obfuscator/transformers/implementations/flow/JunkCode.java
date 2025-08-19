@@ -20,7 +20,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 
-import static me.iris.ambien.obfuscator.utilities.ASMUtils.isSpecialMethod;
+import static me.iris.ambien.obfuscator.utilities.GOTOASMUtils.isSpecialMethod;
 
 @TransformerInfo(
         name = "junk-code",
@@ -31,8 +31,8 @@ import static me.iris.ambien.obfuscator.utilities.ASMUtils.isSpecialMethod;
 )
 public class JunkCode extends Transformer {
     private final Map<ClassWrapper, List<MethodWrapper>> classMethodsMap = new ConcurrentHashMap<>();
-    private final String repeat = (StringUtil.randomStringByStringList(4,UnicodeDictionary.arabic) + "\n").repeat(ThreadLocalRandom.current().nextInt(100,200));
-    private final String repeatType = "[".repeat(255);
+    private final String repeat = StringUtil.repeat((StringUtil.randomStringByStringList(4,UnicodeDictionary.arabic) + "\n"), (ThreadLocalRandom.current().nextInt(100,200)));
+    private final String repeatType = StringUtil.repeat("[",255);
 
     @Override
     public void transform(JarWrapper wrapper) {
@@ -46,7 +46,7 @@ public class JunkCode extends Transformer {
                 });
 
         classMethodsMap.forEach((classWrapper, methods) ->
-                methods.forEach(methodWrapper -> injectJunkCode(methodWrapper)));
+                methods.forEach(this::injectJunkCode));
     }
 
     public void injectJunkCode(MethodWrapper methodWrapper) {
@@ -81,10 +81,15 @@ public class JunkCode extends Transformer {
     public AbstractInsnNode createNumberNode(int value) {
         int opcode = getNumberOpcode(value);
         switch (opcode) {
-            case Opcodes.ICONST_M1, Opcodes.ICONST_0, Opcodes.ICONST_1, Opcodes.ICONST_2, Opcodes.ICONST_3, Opcodes.ICONST_4, Opcodes.ICONST_5 -> {
+            case Opcodes.ICONST_M1:
+            case Opcodes.ICONST_0:
+            case Opcodes.ICONST_1:
+            case Opcodes.ICONST_2:
+            case Opcodes.ICONST_3:
+            case Opcodes.ICONST_4:
+            case Opcodes.ICONST_5:
                 return new InsnNode(opcode);
-            }
-            default -> {
+            default:
                 if (value >= -128 && value <= 127) {
                     return new IntInsnNode(Opcodes.BIPUSH, value);
                 } else if (value >= -32768 && value <= 32767) {
@@ -92,34 +97,26 @@ public class JunkCode extends Transformer {
                 } else {
                     return new LdcInsnNode(value);
                 }
-            }
         }
     }
 
     public int getNumberOpcode(int value) {
         switch (value) {
-            case -1 -> {
+            case -1:
                 return Opcodes.ICONST_M1;
-            }
-            case 0 -> {
+            case 0:
                 return Opcodes.ICONST_0;
-            }
-            case 1 -> {
+            case 1:
                 return Opcodes.ICONST_1;
-            }
-            case 2 -> {
+            case 2:
                 return Opcodes.ICONST_2;
-            }
-            case 3 -> {
+            case 3:
                 return Opcodes.ICONST_3;
-            }
-            case 4 -> {
+            case 4:
                 return Opcodes.ICONST_4;
-            }
-            case 5 -> {
+            case 5:
                 return Opcodes.ICONST_5;
-            }
-            default -> {
+            default:
                 if (value >= -128 && value <= 127) {
                     return Opcodes.BIPUSH;
                 } else if (value >= -32768 && value <= 32767) {
@@ -127,7 +124,6 @@ public class JunkCode extends Transformer {
                 } else {
                     return Opcodes.LDC;
                 }
-            }
         }
     }
 
